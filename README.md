@@ -1,7 +1,6 @@
 Eve blueprint manufactoring query tool. 
 
-This is a work in progress API for taking a serious of CSV database dumps, and providing an interface where you can query 
-what goes into a blueprint construction, what comes out, and eventually the cost and profit. 
+This is a work in progress API for taking a series of CSV database dumps, and providing an interface where you can query what goes into a blueprint construction, what comes out, and eventually the cost and profit. 
 
 
 work so far:
@@ -60,7 +59,7 @@ TODO:
     * Compare potential revenue of selling finished products locally versus exporting to Jita
     * Estimate of total profit (or loss) when picking the lowest costs for each material and product for local versus import/export. 
     
-* Some sort of nice webui on it instead of a straight up java code and command line
+* Some sort of nice web ui on it instead of a straight up java code and command line
 
 Longer Term:
 * TE and Profit/Hour values
