@@ -19,6 +19,7 @@ import com.goonfleet.bpometrics.staticdata.ItemType.MarketableItemFilter;
 public class RegionItemPrice {
 
 	private ItemType itemType;
+	private GoonmetricsRegions region;
 	
 	private double buyMax;
 	private long buyQty;
@@ -30,8 +31,9 @@ public class RegionItemPrice {
 	
 	
 	
-	public RegionItemPrice(ItemType itemType, double buyMax, long buyQty, double sellMin, long sellQty, BigDecimal weeklyVolume) {		
+	public RegionItemPrice(ItemType itemType, GoonmetricsRegions region, double buyMax, long buyQty, double sellMin, long sellQty, BigDecimal weeklyVolume) {		
 		this.itemType = itemType;
+		this.region = region;
 		this.buyMax = buyMax;
 		this.buyQty = buyQty;
 		this.sellMin = sellMin;
@@ -47,7 +49,9 @@ public class RegionItemPrice {
 		return itemType;
 	}
 
-
+	public GoonmetricsRegions getRegion(){
+		return region;
+	}
 
 	public double getBuyMax() {
 		return buyMax;
@@ -77,12 +81,17 @@ public class RegionItemPrice {
 		return weeklyVolume;
 	}
 
+	public String printInside(){
+		StringBuilder builder = new StringBuilder();
+		builder.append("{");
+		builder.append(" BUY ").append(buyQty).append(" @ ").append(buyMax).append(" / ");
+		builder.append(" SELL ").append(sellQty).append(" @ ").append(sellMin).append(" }");
+		return builder.toString();
+	}
 
 	public String toString(){
 		StringBuilder builder = new StringBuilder();
-		builder.append("Id=").append(itemType.getTypeId()).append(", name=").append(itemType.getTypeName()).append(" { ");
-		builder.append(" BUY ").append(buyQty).append(" @ ").append(buyMax).append(" / ");
-		builder.append(" SELL ").append(sellQty).append(" @ ").append(sellMin).append(" }");
+		builder.append("Id=").append(itemType.getTypeId()).append(", name=").append(itemType.getTypeName()).append(" Region=").append(region.name()).append(" ").append(printInside());		
 		return builder.toString();
 	}
 	
@@ -95,13 +104,13 @@ public class RegionItemPrice {
 		
 		for(ItemType item : items){
 			Node node = pricedoc.selectSingleNode("//price_data/type[@id='"+item.getTypeId()+"']");
-			RegionItemPrice rgprice = parseDomTypeNode(item, node);			
+			RegionItemPrice rgprice = parseDomTypeNode(item, region, node);			
 			priceResults.put(item.getTypeId(), rgprice);
 		}
 		return priceResults;
 	}
 	
-	private static RegionItemPrice parseDomTypeNode(ItemType item, Node node){
+	private static RegionItemPrice parseDomTypeNode(ItemType item, GoonmetricsRegions region, Node node){
 		double buyMax = Double.parseDouble(node.selectSingleNode("buy/max").getStringValue());
 		long buyQty = Long.parseLong(node.selectSingleNode("buy/listed").getStringValue());
 		
@@ -110,7 +119,7 @@ public class RegionItemPrice {
 		
 		BigDecimal volume = new BigDecimal(node.selectSingleNode("all/weekly_movement").getStringValue());
 		
-		return new RegionItemPrice(item, buyMax, buyQty, sellMin, sellQty, volume);
+		return new RegionItemPrice(item, region, buyMax, buyQty, sellMin, sellQty, volume);
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException{

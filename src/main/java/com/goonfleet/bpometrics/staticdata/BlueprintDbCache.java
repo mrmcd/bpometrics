@@ -11,6 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.dom4j.DocumentException;
+
+import com.goonfleet.bpometrics.prices.GoonmetricsRegions;
+import com.goonfleet.bpometrics.prices.PriceComputationService;
+import com.goonfleet.bpometrics.prices.RegionItemPrice;
+import com.goonfleet.bpometrics.prices.SimpleMarketCalculator;
+
 import au.com.bytecode.opencsv.CSVReader;
 
 public class BlueprintDbCache {
@@ -171,7 +178,7 @@ public class BlueprintDbCache {
 		reader.close();
 	}
 	
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException, DocumentException{
 		System.out.println("Testing Industry blueprint constructor database.");
 		System.out.print("Loading industry db into memory...");
 		File itemCsv = new File("src/main/resources/invTypes.csv");
@@ -185,7 +192,7 @@ public class BlueprintDbCache {
 		
 		System.out.println("Enter the BPO or BPC item id to query materials and output. Enter -1 to exit.");
 		
-		String query = readTextPrompt("Blueprint DB ID", "1157");
+		String query = readTextPrompt("Blueprint DB ID", "4316");
 		while(!"-1".equals(query)){
 			int bpId = 0;
 			try{
@@ -196,7 +203,7 @@ public class BlueprintDbCache {
 			
 			BlueprintRecipe recipe = bpoDb.queryBlueprint(bpId);
 			if (recipe != null){
-				System.out.println(recipe.generateProductionReport());
+				runReports(recipe);
 			}else{
 				System.out.println("Blueprint Not Found");
 			}
@@ -204,6 +211,23 @@ public class BlueprintDbCache {
 			query = readTextPrompt("Blueprint DB ID", query);
 		}
 	}
+	
+	private static final double SHIPPING_COST = 300.0;
+	private static void runReports(BlueprintRecipe recipe) throws DocumentException, IOException{
+		System.out.println(recipe.generateProductionReport());
+		List<ItemType> shoppingList = recipe.getAllMaterialsList();
+		Map<Integer, RegionItemPrice> dekPrices = RegionItemPrice.queryItemPrices(GoonmetricsRegions.DEKLEIN, shoppingList.toArray(new ItemType[shoppingList.size()]));
+		Map<Integer, RegionItemPrice> jitaPrices = RegionItemPrice.queryItemPrices(GoonmetricsRegions.JITA, shoppingList.toArray(new ItemType[shoppingList.size()]));
+		
+		System.out.println("******************** COSTS ********************");
+		for (SimpleMarketCalculator calc : PriceComputationService.calculateMaterialsSimple(recipe, SHIPPING_COST, dekPrices, jitaPrices)){
+			System.out.println(calc.printMarketReport());
+		}
+		System.out.println("******************** REVENUE ********************");
+		for (SimpleMarketCalculator calc : PriceComputationService.calculateProductsSimple(recipe, SHIPPING_COST, dekPrices, jitaPrices)){
+			System.out.println(calc.printMarketReport());
+		}
+	}	
 	
 	private static BufferedReader lineReader;
 	private static String readTextPrompt(String prompt, String defaultValue) throws IOException{

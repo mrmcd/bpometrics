@@ -4,12 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-
 public class BlueprintRecipe {
 
 	private ItemType blueprintId;	
 	private IndustryActivityType activityType;
-	
+
 	private List<MaterialInput> materials;
 	private List<ProductOutput> products;
 		
@@ -21,7 +20,16 @@ public class BlueprintRecipe {
 		this.products = new LinkedList<BlueprintRecipe.ProductOutput>();
 	}
 	
-	
+	public List<ItemType> getAllMaterialsList() {
+		List<ItemType> shoppingList = new LinkedList<ItemType>();
+		for (MaterialInput input : materials){
+			shoppingList.add(input.getItemType());
+		}
+		for (ProductOutput output : products){
+			shoppingList.add(output.getItemType());			
+		}
+		return shoppingList;
+	}
 	
 	public ItemType getBlueprintId() {
 		return blueprintId;
@@ -31,6 +39,14 @@ public class BlueprintRecipe {
 
 	public IndustryActivityType getActivityType() {
 		return activityType;
+	}
+	
+	public List<MaterialInput> getMaterials() {
+		return materials;
+	}
+
+	public List<ProductOutput> getProducts() {
+		return products;
 	}
 
 
