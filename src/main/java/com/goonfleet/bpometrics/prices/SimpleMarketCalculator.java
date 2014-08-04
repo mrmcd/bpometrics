@@ -56,6 +56,16 @@ public class SimpleMarketCalculator {
 		}
 	}
 	
+	public double getBestISKAmount(){
+		RegionItemPrice bestRegion = calcBestCostRegion();
+		boolean isHome = bestRegion.getRegion() == homePrice.getRegion();
+		if (buying){
+			return (isHome) ? getHomeCost() : getAwayCost();
+		}else{
+			return (isHome) ? getHomeRevenue() : getAwayRevenue();
+		}
+	}
+	
 	public String printMarketReport(){
 		RegionItemPrice bestRegion = calcBestCostRegion(); 
 		StringBuilder builder = new StringBuilder();

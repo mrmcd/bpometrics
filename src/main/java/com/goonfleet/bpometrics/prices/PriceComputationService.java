@@ -33,4 +33,11 @@ public class PriceComputationService {
 		
 		return result;
 	}
+	
+	public static final String formatProfitMargin(double margin){
+		margin = margin * 10000;
+		margin = Math.round(margin);
+		margin = margin / 100;
+		return Double.toString(margin)+"%";
+	}
 }

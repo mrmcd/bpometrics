@@ -218,15 +218,21 @@ public class BlueprintDbCache {
 		List<ItemType> shoppingList = recipe.getAllMaterialsList();
 		Map<Integer, RegionItemPrice> dekPrices = RegionItemPrice.queryItemPrices(GoonmetricsRegions.DEKLEIN, shoppingList.toArray(new ItemType[shoppingList.size()]));
 		Map<Integer, RegionItemPrice> jitaPrices = RegionItemPrice.queryItemPrices(GoonmetricsRegions.JITA, shoppingList.toArray(new ItemType[shoppingList.size()]));
-		
+		double totalCost =  0;
+		double totalRevenue = 0;
 		System.out.println("******************** COSTS ********************");
 		for (SimpleMarketCalculator calc : PriceComputationService.calculateMaterialsSimple(recipe, SHIPPING_COST, dekPrices, jitaPrices)){
 			System.out.println(calc.printMarketReport());
+			totalCost += calc.getBestISKAmount();
 		}
 		System.out.println("******************** REVENUE ********************");
 		for (SimpleMarketCalculator calc : PriceComputationService.calculateProductsSimple(recipe, SHIPPING_COST, dekPrices, jitaPrices)){
 			System.out.println(calc.printMarketReport());
+			totalRevenue += calc.getBestISKAmount();
 		}
+		
+		double profit = (totalRevenue - totalCost );
+		System.out.println("Overall Profit: " + profit + " - " + PriceComputationService.formatProfitMargin( (profit/totalCost) ));		 
 	}	
 	
 	private static BufferedReader lineReader;
